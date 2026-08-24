@@ -1,0 +1,10 @@
+# netlify.toml
+[build]
+  command = "echo 'No build required for static site'"
+  publish = "."
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/.netlify/functions/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
