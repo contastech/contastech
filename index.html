@@ -597,5 +597,42 @@
 
     <script src="./assets/js/data.js"></script>
     <script src="./assets/js/script.js"></script>
+
+    <!-- Widget do Assistente IA -->
+<div id="ai-assistant">
+  <!-- Botão flutuante -->
+  <button id="chat-toggle" class="chat-fab" aria-label="Abrir assistente">
+    <svg class="icon icon--lg" style="color: white;"><use href="#i-messages" /></svg>
+  </button>
+  
+  <!-- Caixa de chat -->
+  <div id="chat-box" class="chat-box" style="display:none;">
+    <!-- Cabeçalho -->
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <span class="chat-avatar">🤖</span>
+        <div>
+          <span class="chat-title">Assistente Contas Tech</span>
+          <span class="chat-status">Online</span>
+        </div>
+      </div>
+      <button id="chat-close" class="chat-close" aria-label="Fechar chat">✕</button>
+    </div>
+    
+    <!-- Mensagens -->
+    <div id="chat-messages" class="chat-messages">
+      <!-- Mensagens serão inseridas via JavaScript -->
+    </div>
+    
+    <!-- Input -->
+    <div class="chat-input-area">
+      <input type="text" id="chat-input" class="chat-input" placeholder="Digite sua pergunta..." autocomplete="off">
+      <button id="chat-send" class="chat-send" aria-label="Enviar mensagem">
+        <svg class="icon"><use href="#i-send" /></svg>
+      </button>
+    </div>
+  </div>
+</div>
+    
   </body>
 </html>
