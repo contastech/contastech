@@ -468,3 +468,181 @@
   /* Ano no rodapé ---------------------------------------------------------- */
   document.getElementById("year").textContent = String(new Date().getFullYear());
 })();
+
+  /* ============================================================
+     ASSISTENTE IA
+     ============================================================ */
+  (function initAIAssistant() {
+    // Verificar se o assistente está habilitado
+    var aiConfig = data.aiAssistant;
+    if (!aiConfig || !aiConfig.enabled) {
+      return;
+    }
+
+    var chatToggle = document.getElementById('chat-toggle');
+    var chatBox = document.getElementById('chat-box');
+    var chatClose = document.getElementById('chat-close');
+    var chatInput = document.getElementById('chat-input');
+    var chatSend = document.getElementById('chat-send');
+    var messagesContainer = document.getElementById('chat-messages');
+
+    var welcomeMsg = aiConfig.welcomeMessage || "Olá! Como posso ajudar?";
+    var systemPrompt = aiConfig.systemPrompt || "Você é um assistente útil.";
+    var apiEndpoint = aiConfig.apiEndpoint || "/.netlify/functions/chat";
+
+    // Estado do chat
+    var isOpen = false;
+    var isProcessing = false;
+
+    // Função para alternar o chat
+    function toggleChat() {
+      isOpen = !isOpen;
+      if (isOpen) {
+        chatBox.style.display = 'flex';
+        chatInput.focus();
+        // Se não houver mensagens, mostrar boas-vindas
+        if (messagesContainer.children.length === 0) {
+          appendMessage('assistant', welcomeMsg);
+        }
+      } else {
+        chatBox.style.display = 'none';
+      }
+    }
+
+    // Abrir/fechar
+    chatToggle.addEventListener('click', toggleChat);
+    chatClose.addEventListener('click', function() {
+      isOpen = false;
+      chatBox.style.display = 'none';
+    });
+
+    // Fechar com Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && isOpen) {
+        isOpen = false;
+        chatBox.style.display = 'none';
+        chatToggle.focus();
+      }
+    });
+
+    // Função para adicionar mensagem
+    function appendMessage(role, text) {
+      var div = document.createElement('div');
+      div.className = 'chat-message chat-message--' + role;
+
+      var bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+
+      // Processar URLs para links clicáveis
+      var formattedText = text.replace(
+        /(https?:\/\/[^\s]+)/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
+      );
+      bubble.innerHTML = formattedText;
+
+      div.appendChild(bubble);
+      messagesContainer.appendChild(div);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Função para mostrar indicador de digitação
+    function showTypingIndicator() {
+      var div = document.createElement('div');
+      div.className = 'chat-typing';
+      div.id = 'typing-indicator';
+
+      var bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+
+      var dots = document.createElement('div');
+      dots.className = 'chat-typing-dots';
+      dots.innerHTML = '<span></span><span></span><span></span>';
+
+      var label = document.createElement('span');
+      label.textContent = 'Digitando';
+
+      bubble.appendChild(dots);
+      bubble.appendChild(label);
+      div.appendChild(bubble);
+      messagesContainer.appendChild(div);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Função para remover indicador de digitação
+    function removeTypingIndicator() {
+      var indicator = document.getElementById('typing-indicator');
+      if (indicator) indicator.remove();
+    }
+
+    // Função para enviar mensagem
+    async function sendMessage() {
+      var message = chatInput.value.trim();
+      if (!message || isProcessing) return;
+
+      // Desabilitar input durante o processamento
+      isProcessing = true;
+      chatInput.disabled = true;
+      chatSend.disabled = true;
+
+      // Adicionar mensagem do usuário
+      appendMessage('user', message);
+      chatInput.value = '';
+
+      // Mostrar indicador de digitação
+      showTypingIndicator();
+
+      try {
+        var response = await fetch(apiEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: message,
+            systemPrompt: systemPrompt
+          })
+        });
+
+        var data = await response.json();
+
+        // Remover indicador de digitação
+        removeTypingIndicator();
+
+        if (data.error) {
+          appendMessage('assistant', '⚠️ ' + data.error);
+        } else if (data.reply) {
+          appendMessage('assistant', data.reply);
+        } else {
+          appendMessage('assistant', '⚠️ Desculpe, não consegui processar sua pergunta. Tente novamente.');
+        }
+      } catch (error) {
+        removeTypingIndicator();
+        appendMessage('assistant', '⚠️ Não foi possível conectar ao assistente. Verifique sua conexão e tente novamente.');
+        console.error('Erro no chat:', error);
+      } finally {
+        isProcessing = false;
+        chatInput.disabled = false;
+        chatSend.disabled = false;
+        chatInput.focus();
+      }
+    }
+
+    // Event listeners
+    chatSend.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Inicializar com mensagem de boas-vindas após um pequeno delay
+    // (apenas se o chat estiver aberto)
+    setTimeout(function() {
+      if (messagesContainer.children.length === 0) {
+        appendMessage('assistant', welcomeMsg);
+      }
+    }, 300);
+
+    // Limpar mensagens ao fechar? Não, mantemos o histórico.
+  })();
