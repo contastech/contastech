@@ -55,17 +55,14 @@
     setMenu(!mobileNav.classList.contains("is-open"));
   });
 
-  // Botão "X" dentro do menu
   menuClose.addEventListener("click", function () {
     setMenu(false);
   });
 
-  // Clicar fora do menu (no overlay) também fecha
   menuOverlay.addEventListener("click", function () {
     setMenu(false);
   });
 
-  // Tecla Esc fecha o menu (bónus de acessibilidade)
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape" && mobileNav.classList.contains("is-open")) {
       setMenu(false);
@@ -158,30 +155,25 @@
      TABELA DE COMPARAÇÃO DE PLANOS — versão responsiva (expansão)
      ============================================================ */
   var table = document.getElementById("plansTable");
-  table.innerHTML = ""; // limpa
+  table.innerHTML = "";
 
-  // --- Cabeçalho ---
   var thead = document.createElement("thead");
   var headerRow = document.createElement("tr");
 
-  // Coluna para o ícone de expansão
   var thIcon = document.createElement("th");
   thIcon.className = "checkbox-cell";
   thIcon.textContent = "";
   headerRow.appendChild(thIcon);
 
-  // Coluna do rótulo (sempre visível)
   var thLabel = document.createElement("th");
   thLabel.textContent = "Comparativo dos Planos";
   headerRow.appendChild(thLabel);
 
-  // Colunas dos planos
   data.plans.forEach(function (plan, idx) {
     var th = document.createElement("th");
     th.innerHTML =
       escapeHtml(plan.name) +
       (plan.highlight ? ' <span style="color: var(--gold)">★</span>' : "");
-    // Aplicar classes de responsividade
     if (idx >= 1) th.classList.add("hide-xs");
     if (idx >= 2) th.classList.add("hide-sm");
     if (idx >= 3) th.classList.add("hide-md");
@@ -190,31 +182,26 @@
   thead.appendChild(headerRow);
   table.appendChild(thead);
 
-  // --- Corpo da tabela ---
   var tbody = document.createElement("tbody");
 
   data.planRows.forEach(function (row, rowIndex) {
     var tr = document.createElement("tr");
 
-    // Coluna do ícone de expansão
     var tdIcon = document.createElement("td");
     tdIcon.className = "checkbox-cell";
     var expandBtn = document.createElement("span");
     expandBtn.className = "expand-btn plus";
     expandBtn.setAttribute("data-expand", "");
-    // Inicialmente escondido (só aparece se houver colunas ocultas)
     expandBtn.style.display = "none";
     expandBtn.innerHTML = '<svg class="icon"><use href="#i-plus" /></svg>';
     tdIcon.appendChild(expandBtn);
     tr.appendChild(tdIcon);
 
-    // Coluna do rótulo (sempre visível)
     var tdLabel = document.createElement("th");
     tdLabel.scope = "row";
     tdLabel.textContent = row.label;
     tr.appendChild(tdLabel);
 
-    // Colunas dos valores (planos)
     row.values.forEach(function (value, idx) {
       var td = document.createElement("td");
       td.textContent = value;
@@ -228,11 +215,9 @@
   });
   table.appendChild(tbody);
 
-  // --- Lógica de expansão/contração ---
   function toggleDetails(rowElement, expandBtn) {
     var nextRow = rowElement.nextElementSibling;
     if (nextRow && nextRow.classList.contains("details-row")) {
-      // Fechar
       nextRow.remove();
       expandBtn.className = "expand-btn plus";
       expandBtn.innerHTML = '<svg class="icon"><use href="#i-plus" /></svg>';
@@ -242,7 +227,6 @@
     var cells = rowElement.querySelectorAll("td, th");
     var planNames = data.plans.map(function (p) { return p.name; });
 
-    // Descobrir apenas as colunas de planos que estão ocultas neste momento
     var hiddenIndexes = [];
     for (var i = 2; i < cells.length; i++) {
       if (window.getComputedStyle(cells[i]).display === "none") {
@@ -250,10 +234,8 @@
       }
     }
 
-    // Se não houver nada oculto, não há o que mostrar em detalhe
     if (hiddenIndexes.length === 0) return;
 
-    // Abrir: construir linha de detalhes apenas com as colunas ocultas
     var detailRow = document.createElement("tr");
     detailRow.className = "details-row";
 
@@ -284,7 +266,6 @@
     expandBtn.innerHTML = '<svg class="icon"><use href="#i-minus" /></svg>';
   }
 
-  // Adicionar eventos de clique aos botões de expansão
   table.querySelectorAll("[data-expand]").forEach(function (btn) {
     btn.addEventListener("click", function (e) {
       e.stopPropagation();
@@ -293,16 +274,13 @@
     });
   });
 
-  // --- Função para controlar a visibilidade do ícone de expansão (responsive) ---
   function checkResponsive() {
     var rows = table.querySelectorAll("tbody tr:not(.details-row)");
     rows.forEach(function (row) {
       var cells = row.querySelectorAll("td, th");
-      // A primeira célula é o ícone, a segunda é o rótulo, as restantes são os valores dos planos
       var expandBtn = row.querySelector("[data-expand]");
       if (!expandBtn) return;
 
-      // Verificar se alguma das colunas de valor (índice 2 em diante) está oculta
       var hasHidden = false;
       for (var i = 2; i < cells.length; i++) {
         if (cells[i] && window.getComputedStyle(cells[i]).display === "none") {
@@ -315,7 +293,6 @@
         expandBtn.style.display = "inline-flex";
       } else {
         expandBtn.style.display = "none";
-        // Se houver uma linha de detalhe aberta, remove-a
         var nextRow = row.nextElementSibling;
         if (nextRow && nextRow.classList.contains("details-row")) {
           nextRow.remove();
@@ -326,15 +303,12 @@
     });
   }
 
-  // Executar a verificação inicial
   checkResponsive();
 
-  // Reavaliar quando a janela for redimensionada
   var resizeTimer;
   window.addEventListener("resize", function () {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () {
-      // Remover todas as linhas de detalhe abertas (para evitar desalinhamento)
       document.querySelectorAll(".details-row").forEach(function (row) {
         var prevRow = row.previousElementSibling;
         if (prevRow) {
@@ -349,8 +323,6 @@
       checkResponsive();
     }, 250);
   });
-
-  /* --- Fim da tabela responsiva --- */
 
   var testimonialsGrid = document.getElementById("testimonialsGrid");
   data.testimonials.forEach(function (item, index) {
@@ -467,10 +439,9 @@
 
   /* Ano no rodapé ---------------------------------------------------------- */
   document.getElementById("year").textContent = String(new Date().getFullYear());
-})();
 
   /* ============================================================
-     ASSISTENTE IA
+     ASSISTENTE IA — FUNCIONAL SEM API (apenas dados locais)
      ============================================================ */
   (function initAIAssistant() {
     // Verificar se o assistente está habilitado
@@ -487,20 +458,232 @@
     var messagesContainer = document.getElementById('chat-messages');
 
     var welcomeMsg = aiConfig.welcomeMessage || "Olá! Como posso ajudar?";
-    var systemPrompt = aiConfig.systemPrompt || "Você é um assistente útil.";
-    var apiEndpoint = aiConfig.apiEndpoint || "/.netlify/functions/chat";
-
-    // Estado do chat
     var isOpen = false;
     var isProcessing = false;
 
-    // Função para alternar o chat
+    // ---- CONSTRUIR BASE DE CONHECIMENTO A PARTIR DO data.js ----
+    var knowledgeBase = {
+      // Serviços
+      servicos: data.services.map(function(s) {
+        return {
+          titulo: s.title.toLowerCase(),
+          descricao: s.description.toLowerCase(),
+          items: s.items.map(function(i) { return i.toLowerCase(); })
+        };
+      }),
+      // Diferenciais
+      diferenciais: data.differentials.map(function(d) {
+        return {
+          titulo: d.title.toLowerCase(),
+          descricao: d.description.toLowerCase()
+        };
+      }),
+      // Pilares (Missão, Visão, Propósito)
+      pilares: data.pillars.map(function(p) {
+        return {
+          titulo: p.title.toLowerCase(),
+          texto: p.text.toLowerCase()
+        };
+      }),
+      // Planos
+      planos: data.plans.map(function(p) {
+        return {
+          nome: p.name.toLowerCase(),
+          perfil: p.profile.toLowerCase(),
+          preco: p.price
+        };
+      }),
+      // Informações de contacto
+      contactos: {
+        telefones: ["959 521 651", "931 059 636", "976 510 057"],
+        email: "vladimirolaurindo0@gmail.com",
+        localizacao: "Luanda, Viana — Vila Nova, Angola"
+      },
+      // Setores
+      setores: data.sectors.map(function(s) { return s.toLowerCase(); })
+    };
+
+    // ---- FUNÇÃO DE BUSCA INTELIGENTE ----
+    function encontrarResposta(pergunta) {
+      var perguntaLower = pergunta.toLowerCase();
+      var respostas = [];
+
+      // 1. Verificar se pergunta sobre serviços
+      var servicosEncontrados = knowledgeBase.servicos.filter(function(s) {
+        return perguntaLower.includes(s.titulo) ||
+               s.items.some(function(item) { return perguntaLower.includes(item); }) ||
+               perguntaLower.includes(s.titulo.replace(/\s/g, ''));
+      });
+
+      if (servicosEncontrados.length > 0) {
+        var servico = servicosEncontrados[0];
+        var servicoOriginal = data.services.find(function(s) {
+          return s.title.toLowerCase() === servico.titulo;
+        });
+        if (servicoOriginal) {
+          respostas.push({
+            relevancia: 10,
+            texto: "🔹 **" + servicoOriginal.title + "**: " + servicoOriginal.description +
+                   "\n\n" + servicoOriginal.items.map(function(item) {
+                     return "• " + item;
+                   }).join("\n")
+          });
+        }
+      }
+
+      // 2. Verificar se pergunta sobre planos
+      var planosEncontrados = knowledgeBase.planos.filter(function(p) {
+        return perguntaLower.includes(p.nome) ||
+               perguntaLower.includes("plano") ||
+               perguntaLower.includes("preço") ||
+               perguntaLower.includes("valor") ||
+               perguntaLower.includes("custo") ||
+               perguntaLower.includes("investimento");
+      });
+
+      if (planosEncontrados.length > 0 || perguntaLower.includes("plano") || perguntaLower.includes("preço")) {
+        var textoPlanos = "📋 **Planos de Serviço Contas Tech:**\n\n";
+        data.plans.forEach(function(p) {
+          textoPlanos += "**Plano " + p.name + "** — " + p.profile + "\n";
+          textoPlanos += "💰 " + p.price + "/mês\n\n";
+        });
+        textoPlanos += "🔹 Os valores são indicativos e podem variar conforme a complexidade do projeto.";
+        respostas.push({
+          relevancia: 9,
+          texto: textoPlanos
+        });
+      }
+
+      // 3. Verificar se pergunta sobre diferenciais
+      var diffEncontrados = knowledgeBase.diferenciais.filter(function(d) {
+        return perguntaLower.includes(d.titulo) ||
+               perguntaLower.includes("diferencial") ||
+               perguntaLower.includes("vantagem");
+      });
+
+      if (diffEncontrados.length > 0) {
+        var diffOriginal = data.differentials.find(function(d) {
+          return d.title.toLowerCase() === diffEncontrados[0].titulo;
+        });
+        if (diffOriginal) {
+          respostas.push({
+            relevancia: 8,
+            texto: "✨ **" + diffOriginal.title + "**: " + diffOriginal.description
+          });
+        }
+      }
+
+      // 4. Verificar se pergunta sobre a empresa (missão, visão)
+      if (perguntaLower.includes("missão") || perguntaLower.includes("missao")) {
+        var missao = data.pillars.find(function(p) { return p.title === "Missão"; });
+        if (missao) {
+          respostas.push({
+            relevancia: 7,
+            texto: "🎯 **Missão da Contas Tech**: " + missao.text
+          });
+        }
+      }
+
+      if (perguntaLower.includes("visão") || perguntaLower.includes("visao")) {
+        var visao = data.pillars.find(function(p) { return p.title === "Visão"; });
+        if (visao) {
+          respostas.push({
+            relevancia: 7,
+            texto: "👁️ **Visão da Contas Tech**: " + visao.text
+          });
+        }
+      }
+
+      if (perguntaLower.includes("propósito") || perguntaLower.includes("proposito")) {
+        var proposito = data.pillars.find(function(p) { return p.title === "Propósito"; });
+        if (proposito) {
+          respostas.push({
+            relevancia: 7,
+            texto: "❤️ **Propósito da Contas Tech**: " + proposito.text
+          });
+        }
+      }
+
+      // 5. Verificar contactos
+      if (perguntaLower.includes("contact") ||
+          perguntaLower.includes("telefone") ||
+          perguntaLower.includes("email") ||
+          perguntaLower.includes("localização") ||
+          perguntaLower.includes("localizacao") ||
+          perguntaLower.includes("onde")) {
+        respostas.push({
+          relevancia: 7,
+          texto: "📞 **Contactos da Contas Tech:**\n\n" +
+                 "• Telefones: " + knowledgeBase.contactos.telefones.join(", ") + "\n" +
+                 "• E-mail: " + knowledgeBase.contactos.email + "\n" +
+                 "• Localização: " + knowledgeBase.contactos.localizacao + "\n\n" +
+                 "⏰ Horário: Segunda a sexta, 08h00 – 17h00"
+        });
+      }
+
+      // 6. Verificar setores
+      var setorEncontrado = knowledgeBase.setores.filter(function(s) {
+        return perguntaLower.includes(s) || perguntaLower.includes("setor");
+      });
+
+      if (setorEncontrado.length > 0 && perguntaLower.includes("setor")) {
+        respostas.push({
+          relevancia: 6,
+          texto: "🏢 **Setores que a Contas Tech acompanha:**\n\n" +
+                 data.sectors.map(function(s) { return "• " + s; }).join("\n")
+        });
+      }
+
+      // 7. Resposta geral sobre a empresa
+      if (perguntaLower.includes("contas tech") ||
+          perguntaLower.includes("empresa") ||
+          perguntaLower.includes("sobre") ||
+          perguntaLower.includes("quem")) {
+        respostas.push({
+          relevancia: 5,
+          texto: "🏢 **Sobre a Contas Tech:**\n\n" +
+                 "A CONTAS TECH Prestação de Serviços, LDA é uma empresa angolana com sede em Luanda que junta " +
+                 "contabilidade e tecnologia. Nascemos para simplificar a vida dos empresários, tratando das " +
+                 "obrigações fiscais e construindo ferramentas digitais que fazem a empresa crescer.\n\n" +
+                 "• Contabilidade + Tecnologia no mesmo lugar\n" +
+                 "• Equipe qualificada com experiência prática\n" +
+                 "• Atendimento personalizado e linguagem simples"
+        });
+      }
+
+      // Ordenar por relevância e pegar a melhor
+      if (respostas.length > 0) {
+        respostas.sort(function(a, b) { return b.relevancia - a.relevancia; });
+        return {
+          encontrou: true,
+          texto: respostas[0].texto
+        };
+      }
+
+      // Se não encontrou nada relacionado
+      return {
+        encontrou: false,
+        texto: null
+      };
+    }
+
+    // ---- FUNÇÃO PARA GERAR MENSAGEM DE FALTA DE RESPOSTA ----
+    function gerarMensagemSemResposta(pergunta) {
+      return "🙏 **Agradecemos a sua pergunta!**\n\n" +
+             "Esta é uma questão mais específica que requer a atenção de um dos nossos especialistas.\n\n" +
+             "📞 **Entre em contacto connosco:**\n" +
+             "• WhatsApp: (244) 959 521 651\n" +
+             "• Telefone: (244) 931 059 636\n" +
+             "• E-mail: vladimirolaurindo0@gmail.com\n\n" +
+             "Teremos todo o gosto em ajudar com mais detalhes!";
+    }
+
+    // ---- FUNÇÕES DO CHAT ----
     function toggleChat() {
       isOpen = !isOpen;
       if (isOpen) {
         chatBox.style.display = 'flex';
         chatInput.focus();
-        // Se não houver mensagens, mostrar boas-vindas
         if (messagesContainer.children.length === 0) {
           appendMessage('assistant', welcomeMsg);
         }
@@ -509,14 +692,12 @@
       }
     }
 
-    // Abrir/fechar
     chatToggle.addEventListener('click', toggleChat);
     chatClose.addEventListener('click', function() {
       isOpen = false;
       chatBox.style.display = 'none';
     });
 
-    // Fechar com Escape
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && isOpen) {
         isOpen = false;
@@ -525,27 +706,19 @@
       }
     });
 
-    // Função para adicionar mensagem
     function appendMessage(role, text) {
       var div = document.createElement('div');
       div.className = 'chat-message chat-message--' + role;
 
       var bubble = document.createElement('div');
       bubble.className = 'chat-bubble';
-
-      // Processar URLs para links clicáveis
-      var formattedText = text.replace(
-        /(https?:\/\/[^\s]+)/g,
-        '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
-      );
-      bubble.innerHTML = formattedText;
+      bubble.innerHTML = text.replace(/\n/g, '<br>');
 
       div.appendChild(bubble);
       messagesContainer.appendChild(div);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // Função para mostrar indicador de digitação
     function showTypingIndicator() {
       var div = document.createElement('div');
       div.className = 'chat-typing';
@@ -559,7 +732,7 @@
       dots.innerHTML = '<span></span><span></span><span></span>';
 
       var label = document.createElement('span');
-      label.textContent = 'Digitando';
+      label.textContent = 'A pesquisar...';
 
       bubble.appendChild(dots);
       bubble.appendChild(label);
@@ -568,66 +741,43 @@
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // Função para remover indicador de digitação
     function removeTypingIndicator() {
       var indicator = document.getElementById('typing-indicator');
       if (indicator) indicator.remove();
     }
 
-    // Função para enviar mensagem
-    async function sendMessage() {
+    function sendMessage() {
       var message = chatInput.value.trim();
       if (!message || isProcessing) return;
 
-      // Desabilitar input durante o processamento
       isProcessing = true;
       chatInput.disabled = true;
       chatSend.disabled = true;
 
-      // Adicionar mensagem do usuário
       appendMessage('user', message);
       chatInput.value = '';
 
-      // Mostrar indicador de digitação
       showTypingIndicator();
 
-      try {
-        var response = await fetch(apiEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: message,
-            systemPrompt: systemPrompt
-          })
-        });
-
-        var data = await response.json();
-
-        // Remover indicador de digitação
+      // Pequeno delay para simular processamento
+      setTimeout(function() {
         removeTypingIndicator();
 
-        if (data.error) {
-          appendMessage('assistant', '⚠️ ' + data.error);
-        } else if (data.reply) {
-          appendMessage('assistant', data.reply);
+        var resultado = encontrarResposta(message);
+
+        if (resultado.encontrou) {
+          appendMessage('assistant', resultado.texto);
         } else {
-          appendMessage('assistant', '⚠️ Desculpe, não consegui processar sua pergunta. Tente novamente.');
+          appendMessage('assistant', gerarMensagemSemResposta(message));
         }
-      } catch (error) {
-        removeTypingIndicator();
-        appendMessage('assistant', '⚠️ Não foi possível conectar ao assistente. Verifique sua conexão e tente novamente.');
-        console.error('Erro no chat:', error);
-      } finally {
+
         isProcessing = false;
         chatInput.disabled = false;
         chatSend.disabled = false;
         chatInput.focus();
-      }
+      }, 600);
     }
 
-    // Event listeners
     chatSend.addEventListener('click', sendMessage);
     chatInput.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -636,13 +786,12 @@
       }
     });
 
-    // Inicializar com mensagem de boas-vindas após um pequeno delay
-    // (apenas se o chat estiver aberto)
+    // Mensagem de boas-vindas inicial
     setTimeout(function() {
       if (messagesContainer.children.length === 0) {
         appendMessage('assistant', welcomeMsg);
       }
     }, 300);
-
-    // Limpar mensagens ao fechar? Não, mantemos o histórico.
   })();
+
+})();
